@@ -27,7 +27,11 @@ if (file_exists('vendor/autoload.php')) {
 Kint::enabled(DEBUG_MODE);
 
 // Start our application
-$app = new Slim\Slim();
+$app = new Slim\Slim(
+// TODO: move to config
+array(
+    'log.enabled' => true
+));
 // initialize custom request
 $app->request = new Request($app->environment);
 // initialize routing

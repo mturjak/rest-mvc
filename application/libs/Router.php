@@ -152,8 +152,8 @@ class Router
 
         /**************** users related rules *********/
 
-        $app->post('/login(/$|/index$|$)', 'Auth::authBase', function () use($app) {
-                $this->loadController($this->users, 'login');
+        $app->post('/login(/:name$|/index$|$)', 'Auth::authBase', function ($name = null) use($app) {
+                $this->loadController($this->users, 'login', $name);
         });
 
         $app->post('/requestPasswordReset(/$|/index$|$)', 'Auth::authBase', function () use($app) {
