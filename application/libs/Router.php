@@ -102,7 +102,7 @@ class Router
              * List users
              */
             $app->get('(/$|/index$|$)', 'Auth::authMember', function () use($app) {
-                  $this->loadController($this->users, 'list');
+                  $this->loadController($this->users, 'index');
             });
 
             /**
@@ -170,9 +170,7 @@ class Router
          * 404 - Not Found
          */
         $app->notFound(function() use($app) {
-            $response["error"] = true;
-            $response["message"] = "Resource not found on server." . (DEBUG_MODE ? $app->request->response_str : '');
-            $this->echoRespnse(404, $response);
+            $this->loadController('error', 'throw_err', 404);
         });
 
         // TODO: set other errors
@@ -206,17 +204,5 @@ class Router
             $controller = new Index();
             $controller->index();
         }
-    }
-
-    /* TODO: move to controller class */
-    private function echoRespnse($status_code, $response) {
-        $app = Slim\Slim::getInstance();
-        // Http response code
-        $app->response->setStatus($status_code);
-     
-        // setting response content type to json
-        $app->contentType('application/json');
-     
-        echo json_encode($response);
     }
 }

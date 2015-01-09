@@ -1,8 +1,7 @@
 <?php
-/* Users controller */
-class Users extends Controller
+/* Classes controller */
+class Classes extends Controller
 {
-
     public function index()
     {
 
@@ -12,5 +11,4 @@ class Users extends Controller
 
         $this->echoRespnse(200, $response);
     }
-  
 }

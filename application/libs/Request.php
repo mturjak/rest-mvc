@@ -36,7 +36,7 @@ class Request extends Slim\Http\Request
       }
       // TODO: other query operations, like order (see parse.com for ideas)
 
-      $this->response_str = " [method: {$this->getMethod()}] [url: {$this->getResourceUri()}] [type: {$this->responseType()}]";
+      $this->response_str = "[method: {$this->getMethod()}] [url: {$this->getResourceUri()}] [type: {$this->responseType()}]";
     }
 
     /**

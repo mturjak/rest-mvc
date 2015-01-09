@@ -26,7 +26,7 @@ define('DEBUG_MODE', TRUE);
  * if you are using a (different) port, then put this in here, like http://mydomain:8888/subfolder/
  * Note: The trailing slash is important!
  */
-define('PATH_BASE', 'rest-api/');
+define('PATH_BASE', 'rest-mvc/');
 define('URL', 'http://localhost:8888/' . PATH_BASE);
 
 /**

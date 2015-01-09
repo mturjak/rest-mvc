@@ -10,8 +10,14 @@
  */
 class Controller
 {
-    function __construct()
+
+    protected $app;
+
+    public function __construct()
     {
+
+        $this->app = Slim\Slim::getInstance();
+        // TODO: use Slim session cookie
         Session::init();
 
         // user has remember-me-cookie ? then try to login with cookie ("remember me" feature)
@@ -26,8 +32,10 @@ class Controller
             die('Database connection could not be established.');
         }
 
+        // TODO: redo the View class
+
         // create a view object (that does nothing, but provides the view render() method)
-        $this->view = new View();
+        //$this->view = new View();
     }
 
     /**
@@ -46,5 +54,20 @@ class Controller
             // return the new model object while passing the database connection to the model
             return new $modelName($this->db);
         }
+    }
+
+    /* TODO: integrate with the view class */
+    protected function echoRespnse($status_code, $response) {
+        // Http response code
+        $this->app->response->setStatus($status_code);
+
+        if(DEBUG_MODE) {
+            $response["debug"] = $this->app->request->response_str;
+        }
+     
+        // setting response content type to json
+        $this->app->contentType('application/json');
+     
+        echo json_encode($response);
     }
 }

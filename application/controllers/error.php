@@ -18,8 +18,14 @@ class Error extends Controller
     /**
      * This method controls what happens / what the user sees when an error happens (404)
      */
-    function index()
+    function throw_err($code)
     {
-        $this->view->render('error/index');
+        // TODO: dynamicaly load message according to $code
+        $response["error"] = true;
+        $response["message"] = "Resource not found on server.";
+
+        $this->echoRespnse($code, $response);
+
+        //$this->view->render('error/'.$code);
     }
 }
