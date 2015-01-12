@@ -16,7 +16,7 @@ class Router
         $app = Slim\Slim::getInstance();
 
         /* API rautes */
-
+        debug(__FILE__, 'setting routes');
 
         /************* classes group **************/
 
@@ -29,6 +29,7 @@ class Router
              * List classes
              */
             $app->get('(/$|/index$|$)', 'Auth::authBase', function () use($app) {
+                debug(__FILE__, 'inside index callback');
                 $this->loadController($this->classes, 'index');
             });
 
@@ -39,7 +40,7 @@ class Router
                   if($name === 'index') {
                       $app->redirect(URL . $this->classes . '/');
                   }
-                  $this->loadController($this->classes, 'list', $name);
+                  $this->loadController($this->classes, 'items', $name);
             });
 
             /**
@@ -170,10 +171,13 @@ class Router
          * 404 - Not Found
          */
         $app->notFound(function() use($app) {
-            $this->loadController('error', 'throw_err', 404);
+            $this->loadController('error', 'notFound');
         });
 
-        // TODO: set other errors
+        // for other errors
+        $app->error(function(\Exception $e) use ($app) {
+            $this->loadController('error', 'genericError', $e->getMessage(), $e->getCode());
+        });
     }
 
     /**

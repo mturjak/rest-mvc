@@ -2,25 +2,18 @@
 /* Users controller */
 class Users extends Controller
 {
-
     public function index()
     {
-
-        // TODO: dynamicaly load message according to $code
-        $response["error"] = false;
-        $response["message"] = "Test response.";
-
-        $this->echoRespnse(200, $response);
+        $this->render('user/index', array(
+            'message' => 'Test response.'
+        ));
     }
 
     public function login($name = null)
     {
-
-        // TODO: dynamicaly load message according to $code
-        $response["error"] = false;
-        $response["message"] = "Test login response. Action: " . $name;
-
-        $this->echoRespnse(200, $response);
+        $arg = (!isset($name) ? '' : " Action: {$name}");
+        $this->render('user/login', array(
+            'message' => "Test login response.{$arg}"
+        ));
     }
-  
 }

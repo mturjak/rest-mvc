@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Error
  * This controller simply shows a page that will be displayed when a controller/method is not found.
@@ -8,24 +7,24 @@
 class Error extends Controller
 {
     /**
-     * Construct this object by extending the basic Controller class
+     * This method controls what happens / what the user sees when an error happens (404)
      */
-    function __construct()
+    function notFound()
     {
-        parent::__construct();
+        $response["error"] = true;
+        $response["message"] = "Resource not found on server.";
+
+        $this->render('error', $response, 404);
     }
 
     /**
      * This method controls what happens / what the user sees when an error happens (404)
      */
-    function throw_err($code)
+    function genericError($message, $code)
     {
-        // TODO: dynamicaly load message according to $code
         $response["error"] = true;
-        $response["message"] = "Resource not found on server.";
+        $response["message"] = $message;
 
-        $this->echoRespnse($code, $response);
-
-        //$this->view->render('error/'.$code);
+        $this->render('error', $response, $code);
     }
 }

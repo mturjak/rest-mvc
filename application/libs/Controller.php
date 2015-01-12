@@ -3,10 +3,10 @@
 /**
  * This is the "base controller class". All other "real" controllers extend this class.
  * Whenever a controller is created, we also
- * 1. initialize a session
- * 2. check if the user is not logged in anymore (session timeout) but has a cookie
+ * NOT FOR API 1. initialize a session
+ * NOT FOR API 2. check if the user is not logged in anymore (session timeout) but has a cookie
  * 3. create a database connection (that will be passed to all models that need a database connection)
- * 4. create a view object
+ * 4. render a view
  */
 class Controller
 {
@@ -16,9 +16,11 @@ class Controller
     public function __construct()
     {
 
+        debug(__FILE__, 'controller instantiated');
         $this->app = Slim\Slim::getInstance();
+
         // TODO: use Slim session cookie
-        Session::init();
+        // Session::init();
 
         // user has remember-me-cookie ? then try to login with cookie ("remember me" feature)
         if (!isset($_SESSION['user_logged_in']) && isset($_COOKIE['rememberme'])) {
@@ -28,14 +30,16 @@ class Controller
         // create database connection
         try {
             $this->db = new Database();
+            debug(__FILE__, 'db connection established');
         } catch (PDOException $e) {
-            die('Database connection could not be established.');
+            $this->halt(503, 'Database connection could not be established.');
         }
 
-        // TODO: redo the View class
-
-        // create a view object (that does nothing, but provides the view render() method)
-        //$this->view = new View();
+        /*
+        if($this->app->request->responseType() == 'api') {
+            debug(__FILE__, 'detected: response_type == api');
+        }
+        */
     }
 
     /**
@@ -44,30 +48,72 @@ class Controller
      */
     public function loadModel($name)
     {
-        $path = MODELS_PATH . strtolower($name) . '_model.php';
+        $modelName = $name . 'Model';
+        $path = MODELS_PATH . $nameName . '.php';
 
         if (file_exists($path)) {
-            require MODELS_PATH . strtolower($name) . '_model.php';
-            // The "Model" has a capital letter as this is the second part of the model class name,
-            // all models have names like "LoginModel"
-            $modelName = $name . 'Model';
-            // return the new model object while passing the database connection to the model
+            require $path;
             return new $modelName($this->db);
         }
     }
 
-    /* TODO: integrate with the view class */
-    protected function echoRespnse($status_code, $response) {
-        // Http response code
-        $this->app->response->setStatus($status_code);
+    /**
+     * Returns a simple response (status code, message), without any data output
+     * @param int $status_code HTTP response code
+     * @param string $message Optional, response message
+     * @param bool $is_error Optional, overrides response error switch
+     */
+    protected function halt($status_code, $message = '', $is_error = null)
+    {
+        // set default template
+        $template = 'view';
 
-        if(DEBUG_MODE) {
-            $response["debug"] = $this->app->request->response_str;
+        // set error switch based on the $status_code or use $is_error override
+        $response["error"] = (isset($is_error) ? $is_error : $status_code >= 400);
+
+        // combine default (status_sode based) message our custom message
+        $response["message"] = Slim\Http\Response::getMessageForCode($status_code) . '. ' . $message;
+
+        $this->render($template, $response, $status_code);
+
+        // stop execution
+        $this->app->stop();
+    }
+
+    /**
+     * Renders the response (status code, message and data) with the selected template
+     * @param string $template
+     * @param array $response Any parameters you wan't to pass along to the view
+     * @param int $status_code HTTP response code
+     * @param bool $render_without_header_and_footer Turns header/footer on/off (gets overridden if `responseType=api`)
+     */
+    protected function render($template, $response, $status_code = 200, $render_without_header_and_footer = false)
+    {
+        // if response type is 'api' setup output parameters for JSON
+        if($this->app->request->responseType() == 'api') {
+            $this->app->contentType('application/json');
+            $template = 'json';
         }
-     
-        // setting response content type to json
-        $this->app->contentType('application/json');
-     
-        echo json_encode($response);
+
+        if($render_without_header_and_footer) {
+            $this->app->view->set('render_without_header_and_footer', $render_without_header_and_footer);
+        }
+
+        $this->activeControllerAction();
+        $this->app->render($template, $response, $status_code);
+    }
+
+    /**
+     * Gets active controller and action from `debug_backtrace` and stores them in `view->data->mvc`
+     */
+    protected function activeControllerAction() {
+        $backtrace = debug_backtrace();
+        $controller = $backtrace[2];
+        $mvc = array(
+            'controller' => strtolower($controller['class']),
+            'action' => strtolower($controller['function']),
+            'args' => $controller['args']
+        );
+        $this->app->view->set('mvc', $mvc);
     }
 }
