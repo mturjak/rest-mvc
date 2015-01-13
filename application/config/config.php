@@ -18,7 +18,7 @@ ini_set("display_errors", 1);
  * Configuration for: Debug mode
  * Set debug mode on/off (Kint, debug helpers,...)
  */
-define('DEBUG_MODE', false);
+define('DEBUG_MODE', true);
 
 /**
  * Configuration for: Base URL
@@ -106,7 +106,7 @@ define('COOKIE_DOMAIN', '.localhost');
 define('DB_TYPE', 'mysql');
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'my_app');
-define('DB_USER', 'root1');
+define('DB_USER', 'root');
 define('DB_PASS', 'root');
 
 /**

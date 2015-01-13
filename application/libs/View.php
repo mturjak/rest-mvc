@@ -42,16 +42,12 @@ class View extends Slim\View
             ));
         }
 
-        if($template == 'json') {
-            require VIEWS_PATH . 'json.php';
+        if($this->get('render_without_header_and_footer')) {
+            echo parent::render($template, $this->all());
         } else {
-            if($this->get('render_without_header_and_footer')) {
-                parent::render($template, $data);
-            } else {
-                require VIEWS_PATH . '_templates/header.php';
-                parent::render($template, $data);
-                require VIEWS_PATH . '_templates/footer.php';
-            }
+            echo parent::render('_templates/header', $this->all());
+            //echo parent::render($template, $this->all());
+            //echo parent::render('_templates/footer', $this->all());
         }
     }
 
@@ -96,12 +92,11 @@ class View extends Slim\View
      * @param string $navigation_controller
      * @return bool Shows if the controller is used or not
      */
-    private function checkForActiveController($filename, $navigation_controller)
+    protected function isActiveController($navigation_controller)
     {
-        $split_filename = explode("/", $filename);
-        $active_controller = $split_filename[0];
+        $active = $this->get('mvc');
 
-        if ($active_controller == $navigation_controller) {
+        if ($active->controller == $navigation_controller) {
             return true;
         }
         // default return
@@ -111,16 +106,14 @@ class View extends Slim\View
     /**
      * Checks if the passed string is the currently active controller-action (=method).
      * Useful for handling the navigation's active/non-active link.
-     * @param string $filename
      * @param string $navigation_action
      * @return bool Shows if the action/method is used or not
      */
-    private function checkForActiveAction($filename, $navigation_action)
+    protected function isActiveAction($navigation_action)
     {
-        $split_filename = explode("/", $filename);
-        $active_action = $split_filename[1];
+        $active = $this->get('mvc');
 
-        if ($active_action == $navigation_action) {
+        if ($active->action == $navigation_action) {
             return true;
         }
         // default return of not true
@@ -130,21 +123,18 @@ class View extends Slim\View
     /**
      * Checks if the passed string is the currently active controller and controller-action.
      * Useful for handling the navigation's active/non-active link.
-     * @param string $filename
      * @param string $navigation_controller_and_action
      * @return bool
      */
-    private function checkForActiveControllerAndAction($filename, $navigation_controller_and_action)
+    protected function isActiveControllerAndAction($navigation_controller_and_action)
     {
-        $split_filename = explode("/", $filename);
-        $active_controller = $split_filename[0];
-        $active_action = $split_filename[1];
+        $active = $this->get('mvc');
 
         $split_filename = explode("/", $navigation_controller_and_action);
         $navigation_controller = $split_filename[0];
         $navigation_action = $split_filename[1];
 
-        if ($active_controller == $navigation_controller AND $active_action == $navigation_action) {
+        if ($active->controller == $navigation_controller AND $active->action == $navigation_action) {
             return true;
         }
         // default return of not true
@@ -156,6 +146,7 @@ class View extends Slim\View
 
     /**
      * Overrides the Slim\View method to add the .php file extension
+     * @param string $template file path without extension (e.g. 'json' or 'user/login')
      */
     public function getTemplatePathname($template)
     {

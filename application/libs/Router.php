@@ -6,14 +6,22 @@ class Router
     private $classes = 'classes';
     private $users = 'users';
 
+    private $app;
+
     public function __construct()
     {
-        $this->setRoutes();
+        $this->app = Slim\Slim::getInstance();
+        $this->setAPIRoutes();
+
+        if($this->app->request->responseType() !== 'api') {
+            $this->setPageRoutes();
+        }
+        
     }
 
-    private function setRoutes()
+    private function setAPIRoutes()
     {
-        $app = Slim\Slim::getInstance();
+        $app = $this->app;
 
         /* API rautes */
         debug(__FILE__, 'setting routes');
@@ -28,7 +36,7 @@ class Router
             /**
              * List classes
              */
-            $app->get('(/$|/index$|$)', 'Auth::authBase', function () use($app) {
+            $app->get('(/$|/index$|$)', 'Auth::authBase', function () {
                 debug(__FILE__, 'inside index callback');
                 $this->loadController($this->classes, 'index');
             });
@@ -102,7 +110,7 @@ class Router
             /**
              * List users
              */
-            $app->get('(/$|/index$|$)', 'Auth::authMember', function () use($app) {
+            $app->get('(/$|/index$|$)', 'Auth::authMember', function () {
                   $this->loadController($this->users, 'index');
             });
 
@@ -122,7 +130,7 @@ class Router
             /**
              * Create user / Sign in
              */
-            $app->post('(/$|/index$|$)', 'Auth::authSession', function () use($app) {
+            $app->post('(/$|/index$|$)', 'Auth::authSession', function () {
                 $this->loadController($this->users, 'add');
             });
 
@@ -153,15 +161,15 @@ class Router
 
         /**************** users related rules *********/
 
-        $app->post('/login(/:name$|/index$|$)', 'Auth::authBase', function ($name = null) use($app) {
+        $app->post('/login(/:name$|/index$|$)', 'Auth::authBase', function ($name = null) {
                 $this->loadController($this->users, 'login', $name);
         });
 
-        $app->post('/requestPasswordReset(/$|/index$|$)', 'Auth::authBase', function () use($app) {
+        $app->post('/requestPasswordReset(/$|/index$|$)', 'Auth::authBase', function () {
                 $this->loadController($this->users, 'requestPasswordReset');
         });
 
-        $app->post('/verify(/$|/index$|$)', 'Auth::verifyCode', function () use($app) {
+        $app->post('/verify(/$|/index$|$)', 'Auth::verifyCode', function () {
                 $this->loadController($this->users, 'verify');
         });
 
@@ -170,13 +178,26 @@ class Router
         /**
          * 404 - Not Found
          */
-        $app->notFound(function() use($app) {
+        $app->notFound(function() {
             $this->loadController('error', 'notFound');
         });
 
         // for other errors
-        $app->error(function(\Exception $e) use ($app) {
+        $app->error(function(\Exception $e) {
             $this->loadController('error', 'genericError', $e->getMessage(), $e->getCode());
+        });
+    }
+
+    private function setPageRoutes()
+    {
+        $app = $this->app;
+
+        $app->get('(/$|/index$|$)', function () {
+              $this->loadController('index', 'index');
+        });
+
+        $app->get('/login(/$|/index$|$)', function () {
+              $this->loadController($this->users, 'loginPage');
         });
     }
 

@@ -10,15 +10,29 @@
  */
 class Controller
 {
-
+    /**
+     * @var Slim instance
+     */
     protected $app;
 
+    /**
+     * @var string ['api'|'html']
+     */
+    protected $response_type;
+
+    /**
+     * Base controller constructor 
+     * Gets instance of Slim and establishes db connection
+     */
     public function __construct()
     {
 
         debug(__FILE__, 'controller instantiated');
         $this->app = Slim\Slim::getInstance();
 
+        $this->response_type = $this->app->request->responseType();
+
+        /*
         // TODO: use Slim session cookie
         // Session::init();
 
@@ -26,6 +40,7 @@ class Controller
         if (!isset($_SESSION['user_logged_in']) && isset($_COOKIE['rememberme'])) {
             header('location: ' . URL . 'login/loginWithCookie');
         }
+        */
 
         // create database connection
         try {
@@ -34,16 +49,10 @@ class Controller
         } catch (PDOException $e) {
             $this->halt(503, 'Database connection could not be established.');
         }
-
-        /*
-        if($this->app->request->responseType() == 'api') {
-            debug(__FILE__, 'detected: response_type == api');
-        }
-        */
     }
 
     /**
-     * loads the model with the given name.
+     * Loads the model with the given name.
      * @param $name string name of the model
      */
     public function loadModel($name)
@@ -72,7 +81,8 @@ class Controller
         $response["error"] = (isset($is_error) ? $is_error : $status_code >= 400);
 
         // combine default (status_sode based) message our custom message
-        $response["message"] = Slim\Http\Response::getMessageForCode($status_code) . '. ' . $message;
+        $response["message"] = Slim\Http\Response::getMessageForCode($status_code)
+                               . ( $message !== '' ? ': ' . $message : '');
 
         $this->render($template, $response, $status_code);
 
@@ -83,14 +93,15 @@ class Controller
     /**
      * Renders the response (status code, message and data) with the selected template
      * @param string $template
-     * @param array $response Any parameters you wan't to pass along to the view
+     * @param array $response Any parameter-value pairs you wan't to pass along to the view
      * @param int $status_code HTTP response code
      * @param bool $render_without_header_and_footer Turns header/footer on/off (gets overridden if `responseType=api`)
      */
-    protected function render($template, $response, $status_code = 200, $render_without_header_and_footer = false)
+    protected function render($template, $response = array(), $status_code = 200, $render_without_header_and_footer = false)
     {
         // if response type is 'api' setup output parameters for JSON
-        if($this->app->request->responseType() == 'api') {
+        if($this->response_type == 'api') {
+            $render_without_header_and_footer = true;
             $this->app->contentType('application/json');
             $template = 'json';
         }
@@ -109,7 +120,7 @@ class Controller
     protected function activeControllerAction() {
         $backtrace = debug_backtrace();
         $controller = $backtrace[2];
-        $mvc = array(
+        $mvc = (object)array(
             'controller' => strtolower($controller['class']),
             'action' => strtolower($controller['function']),
             'args' => $controller['args']

@@ -6,6 +6,9 @@
  */
 class Classes extends Controller
 {
+    /**
+     * Default classes response - lists accessable classes (data tables)
+     */
     public function index()
     {
         //$this->app->flashNow('info', 'Your credit card is expired');
@@ -15,6 +18,10 @@ class Classes extends Controller
         ));
     }
 
+    /**
+     * Lists objects of class $name (records from data table)
+     * @param string $name Class name
+     */
     public function items($name)
     {
         $this->render('classes/index', array(
@@ -24,6 +31,10 @@ class Classes extends Controller
         //throw new Exception($error, 400);
     }
 
+    /**
+     * Lists objects of class $name (records from data table)
+     * @param string $name Class name
+     */
     public function show($name, $id)
     {
         $this->render('classes/view', array(

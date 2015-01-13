@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>My Application</title>
+    <title><?php echo APP_NAME; ?></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSS -->
@@ -16,53 +16,53 @@
 <body>
 
     <div class="debug-helper-box">
-        DEBUG HELPER: you are in the view: <?php echo $filename; ?>
+        DEBUG HELPER: controller/action: <?php echo $mvc->controller . '/' . $mvc->action; ?>
     </div>
 
     <div class='title-box'>
-        <a href="<?php echo URL; ?>">My Application</a>
+        <a href="<?php echo URL; ?>"><?php echo APP_NAME; ?></a>
     </div>
 
     <div class="header">
         <div class="header_left_box">
         <ul id="menu">
-            <li <?php if ($this->checkForActiveController($filename, "index")) { echo ' class="active" '; } ?> >
+            <li <?php if ($this->isActiveController("index")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo URL; ?>index/index">Index</a>
             </li>
-            <li <?php if ($this->checkForActiveController($filename, "help")) { echo ' class="active" '; } ?> >
+            <li <?php if ($this->isActiveController("help")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo URL; ?>help/index">Help</a>
             </li>
-            <li <?php if ($this->checkForActiveController($filename, "overview")) { echo ' class="active" '; } ?> >
+            <li <?php if ($this->isActiveController("overview")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo URL; ?>overview/index">Overview</a>
             </li>
             <?php if (Session::get('user_logged_in') == true):?>
-            <li <?php if ($this->checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
+            <li <?php if ($this->isActiveController("dashboard")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo URL; ?>dashboard/index">Dashboard</a>
             </li>
             <?php endif; ?>
             <?php if (Session::get('user_logged_in') == true):?>
-            <li <?php if ($this->checkForActiveController($filename, "note")) { echo ' class="active" '; } ?> >
+            <li <?php if ($this->isActiveController("note")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo URL; ?>note/index">My Notes</a>
             </li>
             <?php endif; ?>
 
             <?php if (Session::get('user_logged_in') == true):?>
-                <li <?php if ($this->checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+                <li <?php if ($this->isActiveController("login")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo URL; ?>login/showprofile">My Account</a>
                     <ul class="sub-menu">
-                        <li <?php if ($this->checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+                        <li <?php if ($this->isActiveController("login")) { echo ' class="active" '; } ?> >
                             <a href="<?php echo URL; ?>login/changeaccounttype">Change account type</a>
                         </li>
-                        <li <?php if ($this->checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+                        <li <?php if ($this->isActiveController("login")) { echo ' class="active" '; } ?> >
                             <a href="<?php echo URL; ?>login/uploadavatar">Upload an avatar</a>
                         </li>
-                        <li <?php if ($this->checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+                        <li <?php if ($this->isActiveController("login")) { echo ' class="active" '; } ?> >
                             <a href="<?php echo URL; ?>login/editusername">Edit my username</a>
                         </li>
-                        <li <?php if ($this->checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+                        <li <?php if ($this->isActiveController("login")) { echo ' class="active" '; } ?> >
                             <a href="<?php echo URL; ?>login/edituseremail">Edit my email</a>
                         </li>
-                        <li <?php if ($this->checkForActiveController($filename, "login")) { echo ' class="active" '; } ?> >
+                        <li <?php if ($this->isActiveController("login")) { echo ' class="active" '; } ?> >
                             <a href="<?php echo URL; ?>login/logout">Logout</a>
                         </li>
                     </ul>
@@ -71,10 +71,10 @@
 
             <!-- for not logged in users -->
             <?php if (Session::get('user_logged_in') == false):?>
-                <li <?php if ($this->checkForActiveControllerAndAction($filename, "login/index")) { echo ' class="active" '; } ?> >
+                <li <?php if ($this->isActiveControllerAndAction("login/index")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo URL; ?>login/index">Login</a>
                 </li>
-                <li <?php if ($this->checkForActiveControllerAndAction($filename, "login/register")) { echo ' class="active" '; } ?> >
+                <li <?php if ($this->isActiveControllerAndAction("login/register")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo URL; ?>login/register">Register</a>
                 </li>
             <?php endif; ?>
@@ -100,3 +100,4 @@
 
         <div class="clear-both"></div>
     </div>
+    </body></html>

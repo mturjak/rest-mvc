@@ -12,6 +12,6 @@ class Index extends Controller
      */
     function index()
     {
-            $this->render('index/index');
+            $this->render('index');
     }
 }

@@ -1,13 +1,15 @@
 <?php
 /**
- * Class Error
- * This controller simply shows a page that will be displayed when a controller/method is not found.
- * Simple 404 handling.
+ * Error controller
+ * This controller shows custom error pages
  */
 class Error extends Controller
 {
+    // TODO: error redirects instead of direct rendering (so we don't break the template)
+    // TODO: error codes !== HTTP response codes
+
     /**
-     * This method controls what happens / what the user sees when an error happens (404)
+     * This method controls what happens / what the user sees when an notFound error occures (404)
      */
     function notFound()
     {
@@ -18,13 +20,16 @@ class Error extends Controller
     }
 
     /**
-     * This method controls what happens / what the user sees when an error happens (404)
+     * This method controls what happens when an error occures
+     * @param string $message custom error message (extracted from $e->getMessage())
+     * @param int $code HTTP response code (extracted from $e->getCode())
      */
     function genericError($message, $code)
     {
         $response["error"] = true;
         $response["message"] = $message;
 
-        $this->render('error', $response, $code);
+        // render without page header and footer because the error can be cought after page header already set
+        $this->render('error', $response, $code, true);
     }
 }
