@@ -45,9 +45,9 @@ class View extends Slim\View
         if($this->get('render_without_header_and_footer')) {
             echo parent::render($template, $this->all());
         } else {
-            echo parent::render('_templates/header', $this->all());
-            //echo parent::render($template, $this->all());
-            //echo parent::render('_templates/footer', $this->all());
+            echo parent::render('_templates/header');
+            echo parent::render($template);
+            echo parent::render('_templates/footer');
         }
     }
 

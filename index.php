@@ -31,7 +31,7 @@ $app = new Slim\Slim(array(
     'request' => 'Request',
     'templates.path' => 'application/views',
     'mode' => 'production',
-    'debug' => false
+    'debug' => DEBUG_MODE
 ));
 
 // define debugging capability (records messages during execution)

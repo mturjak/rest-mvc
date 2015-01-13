@@ -30,7 +30,7 @@ class Users extends Controller
     public function loginPage()
     {
         $arg = (!isset($name) ? '' : " Action: {$name}");
-        $this->render('user/login', array(
+        $this->render('user/loginpage', array(
             'message' => "Test login response.{$arg}"
         ));
     }

@@ -162,15 +162,15 @@ class Router
         /**************** users related rules *********/
 
         $app->post('/login(/:name$|/index$|$)', 'Auth::authBase', function ($name = null) {
-                $this->loadController($this->users, 'login', $name);
+            $this->loadController($this->users, 'login', $name);
         });
 
         $app->post('/requestPasswordReset(/$|/index$|$)', 'Auth::authBase', function () {
-                $this->loadController($this->users, 'requestPasswordReset');
+            $this->loadController($this->users, 'requestPasswordReset');
         });
 
         $app->post('/verify(/$|/index$|$)', 'Auth::verifyCode', function () {
-                $this->loadController($this->users, 'verify');
+            $this->loadController($this->users, 'verify');
         });
 
         /****************  errors  *****************/
@@ -186,14 +186,22 @@ class Router
         $app->error(function(\Exception $e) {
             $this->loadController('error', 'genericError', $e->getMessage(), $e->getCode());
         });
+
+        // error page
+        $app->get('/error(/$|/index$|$)', function () {
+            $this->loadController('error');
+        });
     }
 
+    /**
+    * Sets routes speciffic to html pages
+    */
     private function setPageRoutes()
     {
         $app = $this->app;
 
         $app->get('(/$|/index$|$)', function () {
-              $this->loadController('index', 'index');
+              $this->loadController();
         });
 
         $app->get('/login(/$|/index$|$)', function () {

@@ -27,7 +27,7 @@
         <div class="header_left_box">
         <ul id="menu">
             <li <?php if ($this->isActiveController("index")) { echo ' class="active" '; } ?> >
-                <a href="<?php echo URL; ?>index/index">Index</a>
+                <a href="<?php echo URL; ?>">Index</a>
             </li>
             <li <?php if ($this->isActiveController("help")) { echo ' class="active" '; } ?> >
                 <a href="<?php echo URL; ?>help/index">Help</a>
@@ -71,7 +71,7 @@
 
             <!-- for not logged in users -->
             <?php if (Session::get('user_logged_in') == false):?>
-                <li <?php if ($this->isActiveControllerAndAction("login/index")) { echo ' class="active" '; } ?> >
+                <li <?php if ($this->isActiveControllerAndAction("users/loginpage")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo URL; ?>login/index">Login</a>
                 </li>
                 <li <?php if ($this->isActiveControllerAndAction("login/register")) { echo ' class="active" '; } ?> >
