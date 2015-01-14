@@ -26,8 +26,6 @@ class Controller
      */
     public function __construct()
     {
-
-        debug(__FILE__, 'controller instantiated');
         $this->app = Slim\Slim::getInstance();
 
         $this->response_type = $this->app->request->responseType();
@@ -45,7 +43,6 @@ class Controller
         // create database connection
         try {
             $this->db = new Database();
-            debug(__FILE__, 'db connection established');
         } catch (PDOException $e) {
             $this->halt(503, 'Database connection could not be established.');
         }
@@ -108,6 +105,13 @@ class Controller
 
         if($render_without_header_and_footer) {
             $this->app->view->set('render_without_header_and_footer', $render_without_header_and_footer);
+        }
+
+        if(DEBUG_MODE){
+            $this->app->view->appendData(array(
+                'request' => $this->app->request->response_str,
+                'response_code' => $status_code
+            ));
         }
 
         $this->activeControllerAction();

@@ -24,7 +24,6 @@ class Router
         $app = $this->app;
 
         /* API rautes */
-        debug(__FILE__, 'setting routes');
 
         /************* classes group **************/
 
@@ -36,15 +35,14 @@ class Router
             /**
              * List classes
              */
-            $app->get('(/$|/index$|$)', 'Auth::authBase', function () {
-                debug(__FILE__, 'inside index callback');
+            $app->get('(/$|/index$|$)', 'Middleware\Auth::authBase', function () {
                 $this->loadController($this->classes, 'index');
             });
 
             /**
              * List records
              */
-            $app->get('/(:name)(/$|/index$|$)', 'Auth::authBase', function ($name) use($app) {
+            $app->get('/(:name)(/$|/index$|$)', 'Middleware\Auth::authBase', function ($name) use($app) {
                   if($name === 'index') {
                       $app->redirect(URL . $this->classes . '/');
                   }
@@ -54,7 +52,7 @@ class Router
             /**
              * Show record
              */
-            $app->get('/:name/:id(/$|/index(/|$)|$)', 'Auth::authBase', function ($name,$id) use($app) {
+            $app->get('/:name/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authBase', function ($name,$id) use($app) {
                 if($name === 'index' || $id === 'index') {
                     $app->redirect(URL . $this->classes . '/');
                 }
@@ -67,7 +65,7 @@ class Router
             /**
              * Create object / create class if not exists
              */
-            $app->post('/(:name)(/$|/index$|$)', 'Auth::authMember', function ($name) use($app) {
+            $app->post('/(:name)(/$|/index$|$)', 'Middleware\Auth::authMember', function ($name) use($app) {
                   if($name === 'index' || $name === '') {
                       $app->notFound();
                   } else {
@@ -80,7 +78,7 @@ class Router
             /**
              * Update record
              */
-            $app->put('/:name/:id(/$|/index(/|$)|$)', 'Auth::authMember', function ($name,$id) use($app) {
+            $app->put('/:name/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authMember', function ($name,$id) use($app) {
                 if($name === 'index' || $id === 'index') {
                     $app->redirect(URL . $this->classes . '/');
                 }
@@ -92,7 +90,7 @@ class Router
             /**
              * Delete record
              */
-            $app->delete('/:name/:id(/$|/index(/|$)|$)', 'Auth::authMember', function ($name,$id) use($app) {
+            $app->delete('/:name/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authMember', function ($name,$id) use($app) {
                 if($name === 'index' || $id === 'index') {
                   $app->halt(105, 'Problem deleting!');
                 }
@@ -110,14 +108,14 @@ class Router
             /**
              * List users
              */
-            $app->get('(/$|/index$|$)', 'Auth::authMember', function () {
+            $app->get('(/$|/index$|$)', 'Middleware\Auth::authMember', function () {
                   $this->loadController($this->users, 'index');
             });
 
             /**
              * Show user
              */
-            $app->get('/:id(/$|/index(/|$)|$)', 'Auth::authMember', function ($id) use($app) {
+            $app->get('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authMember', function ($id) use($app) {
                 if($id === 'index') {
                     $app->redirect(URL . $this->users . '/');
                 }
@@ -130,7 +128,7 @@ class Router
             /**
              * Create user / Sign in
              */
-            $app->post('(/$|/index$|$)', 'Auth::authSession', function () {
+            $app->post('(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
                 $this->loadController($this->users, 'add');
             });
 
@@ -139,7 +137,7 @@ class Router
             /**
              * Update record
              */
-            $app->put('/:id(/$|/index(/|$)|$)', 'Auth::authSession', function ($id) use($app) {
+            $app->put('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
                 if($id === 'index') {
                     $app->redirect(URL . $this->users . '/');
                 }
@@ -151,7 +149,7 @@ class Router
             /**
              * Delete record
              */
-            $app->delete('/:id(/$|/index(/|$)|$)', 'Auth::authSession', function ($id) use($app) {
+            $app->delete('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
                 if($id === 'index') {
                   $app->halt(105, 'Problem deleting: id not set!');
                 }
@@ -161,15 +159,15 @@ class Router
 
         /**************** users related rules *********/
 
-        $app->post('/login(/:name$|/index$|$)', 'Auth::authBase', function ($name = null) {
+        $app->post('/login(/:name$|/index$|$)', 'Middleware\Auth::authBase', function ($name = null) {
             $this->loadController($this->users, 'login', $name);
         });
 
-        $app->post('/requestPasswordReset(/$|/index$|$)', 'Auth::authBase', function () {
+        $app->post('/requestPasswordReset(/$|/index$|$)', 'Middleware\Auth::authBase', function () {
             $this->loadController($this->users, 'requestPasswordReset');
         });
 
-        $app->post('/verify(/$|/index$|$)', 'Auth::verifyCode', function () {
+        $app->post('/verify(/$|/index$|$)', 'Middleware\Auth::verifyCode', function () {
             $this->loadController($this->users, 'verify');
         });
 
@@ -189,7 +187,7 @@ class Router
 
         // error page
         $app->get('/error(/$|/index$|$)', function () {
-            $this->loadController('error');
+            $this->loadController('error','genericError');
         });
     }
 

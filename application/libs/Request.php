@@ -19,14 +19,35 @@ class Request extends Slim\Http\Request
       parent::__construct($env);
 
       $res_uri = explode('/', $this->get('url'), 2);
-      $content_type = explode(';', $this->getContentType(), 2);
+      $media_type = trim($this->getMediaType());
 
       switch(1) {
         case ($res_uri[0] === 'api'):
           $this->env['PATH_INFO'] = '/' . (isset($res_uri[1]) ? $res_uri[1] : '');
-        case (trim($content_type[0]) === 'application/json' || $this->isAjax()):
+        case ($media_type === 'application/json' || $this->isAjax()):
           $this->response_type = 'api';
           break;
+      }
+
+      if($this->response_type === 'api' && $this->isPost()) {
+        $body = json_decode($this->getBody());
+        
+        // checks if valid json format
+        if(json_last_error() == JSON_ERROR_NONE) {
+          $this->env['slim.request.form_hash'] = (array)$body;
+        } else {
+          $app = Slim\Slim::getInstance();
+          $app->view->set('render_without_header_and_footer', true);
+          header('Content-Type: application/json; charset=UTF-8');
+          $app->render('json', array(
+              'error' => true,
+              'message' => 'Error in submited JSON data!'
+            ),
+            400
+          );
+          // force stop app
+          die();
+        }
       }
 
       if($this->get('where') !== null) {

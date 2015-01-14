@@ -1,11 +1,11 @@
 <div class="content">
 
     <!-- echo out the system feedback (error and success messages) -->
-    <?php $this->renderFeedbackMessages(); ?>
+    <?php //$this->renderFeedbackMessages(); ?>
 
     <div class="login-default-box">
         <h1>Login</h1>
-        <form action="<?php echo URL; ?>login/login" method="post">
+        <form action="<?php echo URL; ?>login/login" method="post" enctype='application/json'>
                 <label>Username (or email)</label>
                 <input type="text" name="user_name" required />
                 <label>Password</label>

@@ -24,12 +24,16 @@ class Error extends Controller
      * @param string $message custom error message (extracted from $e->getMessage())
      * @param int $code HTTP response code (extracted from $e->getCode())
      */
-    function genericError($message, $code)
+    function genericError($message = '', $code = 500)
     {
+        if($message === '') {
+            $message = 'A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.';
+        }
+
         $response["error"] = true;
         $response["message"] = $message;
 
         // render without page header and footer because the error can be cought after page header already set
-        $this->render('error', $response, $code, true);
+        $this->render('error', $response, $code);
     }
 }

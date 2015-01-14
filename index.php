@@ -31,31 +31,16 @@ $app = new Slim\Slim(array(
     'request' => 'Request',
     'templates.path' => 'application/views',
     'mode' => 'production',
-    'debug' => DEBUG_MODE
+    'debug' => false
 ));
 
-// define debugging capability (records messages during execution)
-$app->debugger = array();
-function debug($file, $str) {
-    if(DEBUG_MODE) {
-      $app = Slim\Slim::getInstance();
-      $debugger = $app->debugger;
-      array_push($debugger, $str . ' (' . str_replace(__DIR__ . '/', '', $file) . ')');
-      $app->debugger = $debugger;
-    }
-    return true;
-}
-
-debug(__FILE__, 'app instantiated');
-
-// initialize custom request
+// add custom request
 $app->container->singleton('request', function ($c) {
     return new Request($c['environment']);
 });
-//$app->request = new Request($app->environment);
-debug(__FILE__, 'custom request class added');
+
 // initialize routing
-$router = new Router();
-debug(__FILE__, 'router instantiated');
+new Router();
+
 // run Slim
 $app->run();

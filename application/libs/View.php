@@ -9,9 +9,7 @@ class View extends Slim\View
 {
     public function __construct()
     {
-        debug(__FILE__, 'view instantiated');
         parent::__construct();
-
 
         $this->appendData(array(
             'render_without_header_and_footer' => false,
@@ -30,25 +28,32 @@ class View extends Slim\View
             require VIEWS_PATH . '_templates/footer.php';
         }*/
 
-        debug(__FILE__, 'view render');
-        if(DEBUG_MODE) {
-            $app = Slim\Slim::getInstance();
-            $this->appendData(array(
-                'debugger' => array(
-                    'request' => $app->request->response_str,
-                    'response_code' => $app->response->getStatus(),
-                    'app_lifecycle' => $app->debugger
-                )
-            ));
+        $templatePathname = $this->getTemplatePathname($template);
+        if (!is_file($templatePathname)) {
+            throw new \RuntimeException("View cannot render `$template` because the template does not exist.");
         }
 
-        if($this->get('render_without_header_and_footer')) {
-            echo parent::render($template, $this->all());
-        } else {
-            echo parent::render('_templates/header');
-            echo parent::render($template);
-            echo parent::render('_templates/footer');
+        $data = array_merge($this->data->all(), (array) $data);
+        extract($data);
+
+        // clean anny prevous buffered content
+        if($template === 'error') {
+            // loop through all layers of ob
+            while(@ob_end_clean()) {}
         }
+
+        // start buffer
+        ob_start();
+        
+        if($this->get('render_without_header_and_footer')) {
+            require $templatePathname;
+        } else {
+            require $this->templatesDirectory . DIRECTORY_SEPARATOR . '_templates/header.php';
+            require $templatePathname;
+            require $this->templatesDirectory . DIRECTORY_SEPARATOR . '_templates/footer.php';
+        }
+
+        return ob_get_clean();
     }
 
     /**
@@ -78,7 +83,7 @@ class View extends Slim\View
     {
         // echo out the feedback messages (errors and success messages etc.),
         // they are in $_SESSION["feedback_positive"] and $_SESSION["feedback_negative"]
-        require VIEWS_PATH . '_templates/feedback.php';
+        require $this->templatesDirectory . DIRECTORY_SEPARATOR . '_templates/feedback.php';
 
         // delete these messages (as they are not needed anymore and we want to avoid to show them twice
         Session::set('feedback_positive', null);

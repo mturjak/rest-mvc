@@ -9,20 +9,25 @@ class Users extends Controller
         ));
     }
 
-    public function login($name = null)
+    public function login()
     {
+        $message = 'Login successful!';
+        $post = (object)$this->app->request()->post();
 
+        if(!empty($post->username)) {
+            $message .= " Welcome {$post->username}!";
+        } else {
+            $message = '';
+        }
+        
         // render JSON response if in API else redirect
         if($this->response_type == 'api'){
-            $arg = (!isset($name) ? '' : " Action: {$name}");
-            $this->render('json', array(
-                'message' => "Test login response.{$arg}"
+            $this->render('json',array(
+                'message' => $message
             ));
         } else {
-            // redirect
+            $this->render('index/index');
         }
-
-
     }
 
     /**************  Non-API speciffic methods *************/
