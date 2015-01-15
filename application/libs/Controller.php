@@ -28,7 +28,7 @@ class Controller
     {
         $this->app = Slim\Slim::getInstance();
 
-        $this->response_type = $this->app->request->responseType();
+        $this->response_type = $this->app->response_type;
 
         /*
         // TODO: use Slim session cookie
@@ -96,22 +96,27 @@ class Controller
      */
     protected function render($template, $response = array(), $status_code = 200, $render_without_header_and_footer = false)
     {
-        // if response type is 'api' setup output parameters for JSON
+        if(DEBUG_MODE){
+            $response = array_merge($response, array(
+                'request' => $this->app->req_str,
+                'response_code' => $status_code
+            ));
+        }
+
+        // if response type is 'api' return response in json format
         if($this->response_type == 'api') {
-            $render_without_header_and_footer = true;
             $this->app->contentType('application/json');
-            $template = 'json';
+
+            // pull together all echoed content
+            $res_body = $this->app->response->finalize();
+            if(empty($res_body[2])){
+                echo(json_encode($response));
+            }
+            $this->app->stop();
         }
 
         if($render_without_header_and_footer) {
             $this->app->view->set('render_without_header_and_footer', $render_without_header_and_footer);
-        }
-
-        if(DEBUG_MODE){
-            $this->app->view->appendData(array(
-                'request' => $this->app->request->response_str,
-                'response_code' => $status_code
-            ));
         }
 
         $this->activeControllerAction();

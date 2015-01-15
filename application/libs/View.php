@@ -33,7 +33,7 @@ class View extends Slim\View
             throw new \RuntimeException("View cannot render `$template` because the template does not exist.");
         }
 
-        $data = array_merge($this->data->all(), (array) $data);
+        $data = array_merge($this->data->all(), (array) $data); // TODO: this might be unnecessary
         extract($data);
 
         // clean anny prevous buffered content

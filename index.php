@@ -28,7 +28,6 @@ Kint::enabled(DEBUG_MODE);
 // Start our application
 $app = new Slim\Slim(array(
     'view' => 'View',
-    'request' => 'Request',
     'templates.path' => 'application/views',
     'mode' => 'production',
     'debug' => false
