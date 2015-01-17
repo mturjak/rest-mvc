@@ -16,9 +16,6 @@ class Request extends Slim\Http\Request
       parent::__construct($env);
       $app = Slim\Slim::getInstance();
 
-      d($app);
-      die();
-
       $res_uri = explode('/', $this->get('url'), 2);
       $media_type = trim($this->getMediaType());
 
