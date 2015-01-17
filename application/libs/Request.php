@@ -19,7 +19,7 @@ class Request extends Slim\Http\Request
       $res_uri = explode('/', $this->get('url'), 2);
       $media_type = trim($this->getMediaType());
 
-      switch(1) {
+      /*switch(1) {
         case ($res_uri[0] === 'api'):
           $this->env['PATH_INFO'] = '/' . (isset($res_uri[1]) ? $res_uri[1] : '');
         case ($media_type === 'application/json' || $this->isAjax()):
@@ -28,16 +28,13 @@ class Request extends Slim\Http\Request
         default:
           $app->response_type = 'html';
           break;
-      }
+      }*/
 
-      // request info for debugging purposes
-      $app->req_str = "[method: {$this->getMethod()}] [url: {$this->getResourceUri()}] [type: {$app->response_type}]";
-
-      if($this->get('where') !== null) {
+      /*if($this->get('where') !== null) {
         $q = $this->get('where');
         $q = urldecode($q);
         $q = json_decode($q);
-      }
+      }*/
       // TODO: other query operations, like order (see parse.com for ideas)
     }
 }

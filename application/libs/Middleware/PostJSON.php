@@ -5,15 +5,17 @@
  */
 namespace Middleware;
 
-class PostJson extends \Slim\Middleware
+class PostJSON extends \Slim\Middleware
 {
     /**
      * Call
      */
     public function call()
     {
-        if($this->app->response_type === 'api' && $this->isPost()) {
-            $body = json_decode($this->app->request()->getBody());
+        $req = $this->app->request();
+
+        if($this->app->response_type === 'api' && $req->isPost()) {
+            $body = json_decode($req->getBody());
 
             // checks if valid json format
             if(json_last_error() === JSON_ERROR_NONE) {
@@ -29,5 +31,7 @@ class PostJson extends \Slim\Middleware
               echo(json_encode($error));
             }
         }
+
+        $this->next->call();
     }
 }

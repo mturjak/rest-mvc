@@ -33,10 +33,8 @@ $app = new Slim\Slim(array(
     'debug' => false
 ));
 
-// add custom request
-$app->container->singleton('request', function ($c) {
-    return new Request($c['environment']);
-});
+$app->add(new Middleware\PostJSON());
+$app->add(new Middleware\IsAPI());
 
 // initialize routing
 new Router();
