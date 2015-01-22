@@ -144,8 +144,12 @@ $app->group('/users', function() use($app) {
 
 /**************** users related rules *********/
 
-$app->post('/login(/:name$|/index$|$)', 'Middleware\Auth::authBase', function ($name = null) {
+$app->post('/login(/:name$|/index$|$)', function ($name = null) {
   $this->loadController('users', 'login', $name);
+});
+
+$app->get('/logout(/$|/index$|$)', function () {
+  $this->loadController('users', 'logout');
 });
 
 $app->post('/requestPasswordReset(/$|/index$|$)', 'Middleware\Auth::authBase', function () {

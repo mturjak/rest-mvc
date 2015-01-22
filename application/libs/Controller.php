@@ -105,7 +105,7 @@ class Controller
 
         // if response type is 'api' return response in json format
         if($this->response_type == 'api') {
-            $this->app->contentType('application/json');
+            $this->app->response->status($status_code);
 
             // pull together all echoed content
             $res_body = $this->app->response->finalize();

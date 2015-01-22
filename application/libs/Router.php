@@ -36,6 +36,10 @@ class Router
         $app->get('/login(/$|/index$|$)', function () {
               $this->loadController('users', 'loginPage');
         });
+
+        $app->get('/overview(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
+              $this->loadController();
+        });
     }
 
     /**

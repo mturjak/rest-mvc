@@ -13,20 +13,43 @@ class Users extends Controller
     {
         $message = 'Login successful!';
         $post = (object)$this->app->request()->post();
+        $code = 200;
+        $sess_token = null;
+        $sess_expires = 0;
 
-        if(!empty($post->username)) {
-            $message .= " Welcome {$post->username}!";
+        if(!empty($username = $post->username) && !empty($password = $post->password)) {
+            // call to model verify user & password
+            // if user credentials ok
+            $x = false;
+            if($password == "test" && $username == "martin") {
+
+            } else {
+                $message = 'Sorry! Wrong credentials.';
+                $code = 401;
+            }
         } else {
-            $message = '';
+            // return message if missing credentials
+            $message = 'Username or password missing.';
+            $code = 401;
         }
         
+        
+
         // render JSON response if in API else redirect
         if($this->response_type == 'api'){
             $this->render('json',array(
+                'session_token' => $sess_token,
+                'session_expires' => $sess_expires,
                 'message' => $message
-            ));
+            ), $code);
         } else {
-            $this->render('index/index');
+            $this->app->flash('success', $message);
+            if($code == 200) {
+                Middleware\Session::set('user_logged_in', true);
+                $this->app->redirect(); // TODO: redirect to point of origin
+            } else {
+                $this->app->redirect('login');
+            }
         }
     }
 
@@ -37,6 +60,14 @@ class Users extends Controller
         $arg = (!isset($name) ? '' : " Action: {$name}");
         $this->render('user/loginpage', array(
             'message' => "Test login response.{$arg}"
+        ));
+    }
+
+    public function logout()
+    {
+        \Middleware\Session::destroy();
+        $this->render('index/index', array(
+            'message' => "Logout successful. Session terminated."
         ));
     }
 }

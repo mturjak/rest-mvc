@@ -26,14 +26,15 @@ class PostJSON extends \Slim\Middleware
               // continue
               $this->next->call();
             } else {
-              $error = (object)array(
+              // return error
+              $app->response->setStatus(400);
+              $app->response->setBody(json_encode(array(
                   'error' => true,
                   'message' => 'Error in submited data! Not valid JSON format.'
-              );
-              $app->contentType('application/json');
-              $app->response->setStatus(400);
-              $app->response->setBody(json_encode($error));
+              )));
             }
+        } else {
+        	$this->next->call();
         }
     }
 }

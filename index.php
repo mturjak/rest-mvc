@@ -34,6 +34,7 @@ $app = new Slim\Slim(array(
 ));
 
 $app->add(new Middleware\PostJSON());
+$app->add(new Middleware\Auth());
 $app->add(new Middleware\IsAPI());
 
 // initialize routing

@@ -23,16 +23,18 @@ class IsAPI extends \Slim\Middleware
           case ($res_uri[0] === 'api'):
             $env['PATH_INFO'] = '/' . (isset($res_uri[1]) ? $res_uri[1] : '');
           case ($media_type === 'application/json' || $req->isAjax()):
+            $app->contentType('application/json');
             $app->response_type = 'api';
             break;
           default:
             $app->response_type = 'html';
+            // using native PHP sessions on html page
+            Session::init();
             break;
         }
 
         // request info for debugging purposes
         $app->req_str = "[method: {$req->getMethod()}] [url: {$req->getResourceUri()}] [type: {$app->response_type}]";
-
         $this->next->call();
     }
 }
