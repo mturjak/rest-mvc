@@ -26,11 +26,11 @@ class LoginModel
     public function login()
     {
         // we do negative-first checks here
-        if (!isset($_POST['user_name']) OR empty($_POST['user_name'])) {
+        if (!isset($_POST['username']) OR empty($_POST['username'])) {
             $_SESSION["feedback_negative"][] = FEEDBACK_USERNAME_FIELD_EMPTY;
             return false;
         }
-        if (!isset($_POST['user_password']) OR empty($_POST['user_password'])) {
+        if (!isset($_POST['password']) OR empty($_POST['password'])) {
             $_SESSION["feedback_negative"][] = FEEDBACK_PASSWORD_FIELD_EMPTY;
             return false;
         }
@@ -50,7 +50,7 @@ class LoginModel
                                           AND user_provider_type = :provider_type");
         // DEFAULT is the marker for "normal" accounts (that have a password etc.)
         // There are other types of accounts that don't have passwords etc. (FACEBOOK)
-        $sth->execute(array(':user_name' => $_POST['user_name'], ':provider_type' => 'DEFAULT'));
+        $sth->execute(array(':user_name' => $_POST['username'], ':provider_type' => 'DEFAULT'));
         $count =  $sth->rowCount();
         // if there's NOT one result
         if ($count != 1) {
@@ -70,7 +70,7 @@ class LoginModel
         }
 
         // check if hash of provided password matches the hash in the database
-        if (password_verify($_POST['user_password'], $result->user_password_hash)) {
+        if (password_verify($_POST['password'], $result->user_password_hash)) {
 
             if ($result->user_active != 1) {
                 $_SESSION["feedback_negative"][] = FEEDBACK_ACCOUNT_NOT_ACTIVATED_YET;
@@ -135,7 +135,7 @@ class LoginModel
                     SET user_failed_logins = user_failed_logins+1, user_last_failed_login = :user_last_failed_login
                     WHERE user_name = :user_name OR user_email = :user_name";
             $sth = $this->db->prepare($sql);
-            $sth->execute(array(':user_name' => $_POST['user_name'], ':user_last_failed_login' => time() ));
+            $sth->execute(array(':user_name' => $_POST['username'], ':user_last_failed_login' => time() ));
             // feedback message
             $_SESSION["feedback_negative"][] = FEEDBACK_PASSWORD_WRONG;
             return false;

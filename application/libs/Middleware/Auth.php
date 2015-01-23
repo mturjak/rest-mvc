@@ -64,17 +64,41 @@ class Auth extends \Slim\Middleware
     }
 
     public static function authSession() {
-        return function () {
-            $app = \Slim\Slim::getInstance();
-            $req = $app->request();
-            $user = Middleware\Session::get('user_logged_in');
-            if ( $user === false ) {
-                $app = \Slim\Slim::getInstance();
-                $app->flash('error', 'Login required');
-                Session::set('redirect', $req->get('url'));
-                $app->redirect('login');
+        $app = \Slim\Slim::getInstance();
+        $req = $app->request();
+        $resp = $app->response();
+
+        if($app->response_type === 'api') {
+            if(!empty($token = $req->headers('X-Session-Token'))) {
+                $token_arr = explode('::', $token, 2);
+                if($token_arr[1] < time()) { // if timestamp expired check against database
+                    $model = new \UserModel(\Database::getInstance());
+                    if($model->renew($token_arr[0])) {
+                        // call next
+                    } else {
+                        $resp->setStatus(401);
+                        $resp->setBody(json_encode(array(
+                            'error' => true,
+                            'message' => 'Your token has expired! Log in to get a new one.'
+                        )));
+                    }
+                }
+            } else {
+                $resp->setStatus(401);
+                $resp->setBody(json_encode(array(
+                    'error' => true,
+                    'message' => 'Session token required! Please log in to get one.'
+                )));
             }
-        };
+        } else {
+            if(self::userLoggedIn()) { // check for rememberCookie in this step
+                // continue
+            } else {
+                \Session::set('redirect', $req->get('url'));
+                $app->flash('error', 'Login required');
+                $app->redirect(URL . 'login');
+            }
+        }
     }
 
     public static function verifyCode() {
@@ -93,15 +117,34 @@ class Auth extends \Slim\Middleware
     public static function handleLogin()
     {
         // initialize the session
-        // Session::init();
+        \Session::init();
         // if user is still not logged in, then destroy session, handle user as "not logged in" and
         // redirect user to login page
         if (!isset($_SESSION['user_logged_in'])) {
-            Session::destroy();
+            \Session::destroy();
             header('location: ' . URL . 'login');
             // to prevent fetching views via cURL (which "ignores" the header-redirect above) we leave the application
             // the hard way, via exit(). @see https://github.com/panique/php-login/issues/453
             exit();
         }
+    }
+
+    /**
+     * check if user is logged in ... if not destroy session
+     */
+    public static function userLoggedIn()
+    {
+        $app = \Slim\Slim::getInstance();
+        // initialize the session
+        \Session::init();
+
+        if (!isset($_SESSION['user_logged_in'])) {
+            if (isset($_COOKIE['rememberme'])) {
+                $app->redirect(URL . 'loginWithCookie');
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 }

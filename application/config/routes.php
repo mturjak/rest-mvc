@@ -92,14 +92,14 @@ $app->group('/users', function() use($app) {
   /**
    * List users
    */
-  $app->get('(/$|/index$|$)', 'Middleware\Auth::authMember', function () {
+  $app->get('(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
       $this->loadController('users', 'index');
   });
 
   /**
    * Show user
    */
-  $app->get('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authMember', function ($id) use($app) {
+  $app->get('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
     if($id === 'index') {
       $app->redirect(URL . 'users/');
     }

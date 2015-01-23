@@ -1,12 +1,6 @@
 <?php
-/* base PDO model class */
-class PDOModel {
 
-    /**
-     * @Inject
-     * @var Database
-     */
-    private $db;
+class UserModel {
 
     /**
      * Constructor, expects a Database connection
@@ -17,5 +11,11 @@ class PDOModel {
         $this->db = $db;
     }
 
-    
+	/**
+     * Session token renewer
+     */
+	public function renew() {
+		// dummy
+		return true;
+	}
 }

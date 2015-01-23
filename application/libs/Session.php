@@ -1,6 +1,4 @@
 <?php
-
-namespace Middleware; 
 /**
  * Session class
  *
@@ -40,6 +38,18 @@ class Session
     {
         if (isset($_SESSION[$key])) {
             return $_SESSION[$key];
+        }
+    }
+
+    /**
+     * unsets the value of a specific key of the session
+     * @param mixed $key Usually a string, right ?
+     * @return mixed
+     */
+    public static function uset($key)
+    {
+        if (isset($_SESSION[$key])) {
+            unset($_SESSION[$key]);
         }
     }
 

@@ -30,6 +30,17 @@ define('PATH_BASE', 'rest-mvc/');
 define('URL', 'http://localhost:8888/' . PATH_BASE);
 
 /**
+ * If redirected to login redirect back after successful login
+ */
+define('REDIRECT_BACK', true);
+
+/**
+ * Default url to be redirected to after login/logout
+ */
+define('LOGIN_REDIRECT', '');
+define('LOGOUT_REDIRECT', '');
+
+/**
  * Configuration for: App name
  * This is the main App name.
  */
@@ -65,7 +76,7 @@ define('FACEBOOK_REGISTER_PATH', 'login/registerWithFacebook');
  * AVATAR_SIZE set the pixel size of avatars/gravatars (will be 44x44 by default). Avatars are always squares.
  * AVATAR_DEFAULT_IMAGE is the default image in public/avatars/
  */
-define('USE_GRAVATAR', false);
+define('USE_GRAVATAR', true);
 define('AVATAR_SIZE', 44);
 define('AVATAR_JPEG_QUALITY', 85);
 define('AVATAR_DEFAULT_IMAGE', 'default.jpg');
@@ -108,6 +119,8 @@ define('DB_HOST', 'localhost');
 define('DB_NAME', 'my_app');
 define('DB_USER', 'root');
 define('DB_PASS', 'root');
+define('DB_PORT', 8889);
+define('DB_CHARSET', 'utf8');
 
 /**
  * Configuration for: Hashing strength

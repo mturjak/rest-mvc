@@ -29,7 +29,7 @@ class IsAPI extends \Slim\Middleware
           default:
             $app->response_type = 'html';
             // using native PHP sessions on html page
-            Session::init();
+            \Session::init();
             break;
         }
 

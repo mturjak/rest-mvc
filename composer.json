@@ -26,6 +26,6 @@
         "slim/slim": "2.5.0"
     },
     "autoload": {
-        "psr-4": { "": ["application/libs/", "application/controllers/"] }
+        "psr-4": { "": ["application/libs/", "application/controllers/", "application/models/"] }
     }
 }

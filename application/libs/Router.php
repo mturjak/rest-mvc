@@ -37,6 +37,10 @@ class Router
               $this->loadController('users', 'loginPage');
         });
 
+        $app->get('/loginwithcookie(/$|/index$|$)', function () {
+              $this->loadController('users', 'loginWithCookie');
+        });
+
         $app->get('/overview(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
               $this->loadController();
         });

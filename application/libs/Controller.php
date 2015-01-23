@@ -42,7 +42,7 @@ class Controller
 
         // create database connection
         try {
-            $this->db = new Database();
+            $this->db = Database::getInstance();
         } catch (PDOException $e) {
             $this->halt(503, 'Database connection could not be established.');
         }
@@ -55,12 +55,7 @@ class Controller
     public function loadModel($name)
     {
         $modelName = $name . 'Model';
-        $path = MODELS_PATH . $nameName . '.php';
-
-        if (file_exists($path)) {
-            require $path;
-            return new $modelName($this->db);
-        }
+        return new $modelName($this->db);
     }
 
     /**
@@ -72,7 +67,7 @@ class Controller
     protected function halt($status_code, $message = '', $is_error = null)
     {
         // set default template
-        $template = 'view';
+        $template = 'index/index';
 
         // set error switch based on the $status_code or use $is_error override
         $response["error"] = (isset($is_error) ? $is_error : $status_code >= 400);

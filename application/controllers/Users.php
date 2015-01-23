@@ -17,11 +17,14 @@ class Users extends Controller
         $sess_token = null;
         $sess_expires = 0;
 
+        $login_model = $this->loadModel('Login');
+        // perform the login method, put result (true or false) into $login_successful
+        
         if(!empty($username = $post->username) && !empty($password = $post->password)) {
             // call to model verify user & password
             // if user credentials ok
             $x = false;
-            if($password == "test" && $username == "martin") {
+            if($login_model->login()) {
 
             } else {
                 $message = 'Sorry! Wrong credentials.';
@@ -32,8 +35,6 @@ class Users extends Controller
             $message = 'Username or password missing.';
             $code = 401;
         }
-        
-        
 
         // render JSON response if in API else redirect
         if($this->response_type == 'api'){
@@ -45,10 +46,17 @@ class Users extends Controller
         } else {
             $this->app->flash('success', $message);
             if($code == 200) {
-                Middleware\Session::set('user_logged_in', true);
-                $this->app->redirect(); // TODO: redirect to point of origin
+                if(REDIRECT_BACK) {
+                    $redirect = Session::get('redirect');
+                }
+                if(!empty($redirect)) {
+                    Session::uset('redirect');
+                } else {
+                    $redirect = LOGIN_REDIRECT;
+                }
+                $this->app->redirect(URL . $redirect);
             } else {
-                $this->app->redirect('login');
+                $this->app->redirect(URL . 'login');
             }
         }
     }
@@ -65,9 +73,8 @@ class Users extends Controller
 
     public function logout()
     {
-        \Middleware\Session::destroy();
-        $this->render('index/index', array(
-            'message' => "Logout successful. Session terminated."
-        ));
+        $login_model = $this->loadModel('Login');
+        $login_model->logout();
+        $this->app->redirect(URL . LOGOUT_REDIRECT);
     }
 }
