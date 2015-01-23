@@ -16,6 +16,21 @@ class LoginModel
     public function __construct(Database $db)
     {
         $this->db = $db;
+        $this->app = \Slim\Slim::getInstance();
+        $this->post = (object)$this->app->request()->post();
+    }
+
+    public function sessionToken($user, $token = null)
+    {
+        if(!empty($token)) {
+
+        } else {
+            $raw_token =  $user . '::' . time();
+            $token_hash = hash_hmac('SHA512', $raw_token . SESSION_TOKEN_SALT, SESSION_TOKEN_KEY);
+            echo substr(base64_encode($raw_token . "::" . $token_hash), 0, -1);
+            die();
+        }
+
     }
 
     /**
@@ -26,12 +41,12 @@ class LoginModel
     public function login()
     {
         // we do negative-first checks here
-        if (!isset($_POST['username']) OR empty($_POST['username'])) {
-            $_SESSION["feedback_negative"][] = FEEDBACK_USERNAME_FIELD_EMPTY;
+        if (!isset($this->post->username) OR empty($this->post->username)) {
+            //$this->app->flash('error',FEEDBACK_USERNAME_FIELD_EMPTY);
             return false;
         }
-        if (!isset($_POST['password']) OR empty($_POST['password'])) {
-            $_SESSION["feedback_negative"][] = FEEDBACK_PASSWORD_FIELD_EMPTY;
+        if (!isset($this->post->password) OR empty($this->post->password)) {
+            //$this->app->flash('error',FEEDBACK_PASSWORD_FIELD_EMPTY);
             return false;
         }
 
@@ -50,13 +65,13 @@ class LoginModel
                                           AND user_provider_type = :provider_type");
         // DEFAULT is the marker for "normal" accounts (that have a password etc.)
         // There are other types of accounts that don't have passwords etc. (FACEBOOK)
-        $sth->execute(array(':user_name' => $_POST['username'], ':provider_type' => 'DEFAULT'));
+        $sth->execute(array(':user_name' => $this->post->username, ':provider_type' => 'DEFAULT'));
         $count =  $sth->rowCount();
         // if there's NOT one result
         if ($count != 1) {
             // was FEEDBACK_USER_DOES_NOT_EXIST before, but has changed to FEEDBACK_LOGIN_FAILED
             // to prevent potential attackers showing if the user exists
-            $_SESSION["feedback_negative"][] = FEEDBACK_LOGIN_FAILED;
+            //$this->app->flash('error',FEEDBACK_LOGIN_FAILED);
             return false;
         }
 
@@ -65,30 +80,44 @@ class LoginModel
 
         // block login attempt if somebody has already failed 3 times and the last login attempt is less than 30sec ago
         if (($result->user_failed_logins >= 3) AND ($result->user_last_failed_login > (time()-30))) {
-            $_SESSION["feedback_negative"][] = FEEDBACK_PASSWORD_WRONG_3_TIMES;
+            //$this->app->flash('error',FEEDBACK_PASSWORD_WRONG_3_TIMES);
             return false;
         }
 
         // check if hash of provided password matches the hash in the database
-        if (password_verify($_POST['password'], $result->user_password_hash)) {
+        if (password_verify($this->post->password, $result->user_password_hash)) {
 
             if ($result->user_active != 1) {
-                $_SESSION["feedback_negative"][] = FEEDBACK_ACCOUNT_NOT_ACTIVATED_YET;
+                //$this->app->flash('error',FEEDBACK_ACCOUNT_NOT_ACTIVATED_YET);
                 return false;
             }
 
-            // login process, write the user data into session
-            Session::init();
-            Session::set('user_logged_in', true);
-            Session::set('user_id', $result->user_id);
-            Session::set('user_name', $result->user_name);
-            Session::set('user_email', $result->user_email);
-            Session::set('user_account_type', $result->user_account_type);
-            Session::set('user_provider_type', 'DEFAULT');
-            // put native avatar path into session
-            Session::set('user_avatar_file', $this->getUserAvatarFilePath());
-            // put Gravatar URL into session
-            $this->setGravatarImageUrl($result->user_email, AVATAR_SIZE);
+            if($this->app->response_type == 'html') {
+                // login process, write the user data into session
+                Session::init();
+                Session::set('user_logged_in', true);
+                Session::set('user_id', $result->user_id);
+                Session::set('user_name', $result->user_name);
+                Session::set('user_email', $result->user_email);
+                Session::set('user_account_type', $result->user_account_type);
+                Session::set('user_provider_type', 'DEFAULT');
+                // put native avatar path into session
+                Session::set('user_avatar_file', $this->getUserAvatarFilePath());
+                // put Gravatar URL into session
+                $this->setGravatarImageUrl($result->user_email, AVATAR_SIZE);
+            } elseif($this->app->response_type == 'api') {
+                // set the session token
+                $raw_token =  $this->post->username . '::' . (time() + 1800); // set token for half an hour from now
+                $token_hash = hash_hmac('SHA512', $raw_token . SESSION_TOKEN_SALT, SESSION_TOKEN_KEY); // hash with key
+                
+                $sql = "UPDATE users SET session_token = :token
+                        WHERE user_id = :user_id";
+                $tkn = $this->db->prepare($sql);
+                $tkn->execute(array(':user_id' => $result->user_id, ':token' => $token_hash));
+                if($tkn->rowCount() > 0) {
+                    return substr(base64_encode($raw_token . "::" . $token_hash), 0, -1); // encode and remove last character
+                }
+            }
 
             // reset the failed login counter for that user (if necessary)
             if ($result->user_last_failed_login > 0) {
@@ -107,7 +136,7 @@ class LoginModel
             $sth->execute(array(':user_id' => $result->user_id, ':user_last_login_timestamp' => $user_last_login_timestamp));
 
             // if user has checked the "remember me" checkbox, then write cookie
-            if (isset($_POST['user_rememberme'])) {
+            if (isset($this->post->user_rememberme)) {
 
                 // generate 64 char random string
                 $random_token_string = hash('sha256', mt_rand());
@@ -126,6 +155,7 @@ class LoginModel
                 setcookie('rememberme', $cookie_string, time() + COOKIE_RUNTIME, "/", COOKIE_DOMAIN);
             }
 
+            //$this->app->flash('success', 'Login successful!');
             // return true to make clear the login was successful
             return true;
 
@@ -135,9 +165,9 @@ class LoginModel
                     SET user_failed_logins = user_failed_logins+1, user_last_failed_login = :user_last_failed_login
                     WHERE user_name = :user_name OR user_email = :user_name";
             $sth = $this->db->prepare($sql);
-            $sth->execute(array(':user_name' => $_POST['username'], ':user_last_failed_login' => time() ));
+            $sth->execute(array(':user_name' => $this->post->username, ':user_last_failed_login' => time() ));
             // feedback message
-            $_SESSION["feedback_negative"][] = FEEDBACK_PASSWORD_WRONG;
+            //$this->app->flash('error', FEEDBACK_PASSWORD_WRONG);
             return false;
         }
 
@@ -155,20 +185,20 @@ class LoginModel
 
         // do we have a cookie var ?
         if (!$cookie) {
-            $_SESSION["feedback_negative"][] = FEEDBACK_COOKIE_INVALID;
+            $this->app->flash('error', FEEDBACK_COOKIE_INVALID);
             return false;
         }
 
         // check cookie's contents, check if cookie contents belong together
         list ($user_id, $token, $hash) = explode(':', $cookie);
         if ($hash !== hash('sha256', $user_id . ':' . $token)) {
-            $_SESSION["feedback_negative"][] = FEEDBACK_COOKIE_INVALID;
+            $this->app->flash('error', FEEDBACK_COOKIE_INVALID);
             return false;
         }
 
         // do not log in when token is empty
         if (empty($token)) {
-            $_SESSION["feedback_negative"][] = FEEDBACK_COOKIE_INVALID;
+            $this->app->flash('error', FEEDBACK_COOKIE_INVALID);
             return false;
         }
 
@@ -209,10 +239,10 @@ class LoginModel
             // NOTE: we don't set another rememberme-cookie here as the current cookie should always
             // be invalid after a certain amount of time, so the user has to login with username/password
             // again from time to time. This is good and safe ! ;)
-            $_SESSION["feedback_positive"][] = FEEDBACK_COOKIE_LOGIN_SUCCESSFUL;
+            $this->app->flash('success', FEEDBACK_COOKIE_LOGIN_SUCCESSFUL);
             return true;
         } else {
-            $_SESSION["feedback_negative"][] = FEEDBACK_COOKIE_INVALID;
+            $this->app->flash('error', FEEDBACK_COOKIE_INVALID);
             return false;
         }
     }
@@ -285,13 +315,28 @@ class LoginModel
      */
     public function logout()
     {
-        // set the remember-me-cookie to ten years ago (3600sec * 365 days * 10).
-        // that's obviously the best practice to kill a cookie via php
-        // @see http://stackoverflow.com/a/686166/1114320
-        setcookie('rememberme', false, time() - (3600 * 3650), '/', COOKIE_DOMAIN);
+        if($this->app->response_type == 'html') {
+            // set the remember-me-cookie to ten years ago (3600sec * 365 days * 10).
+            // that's obviously the best practice to kill a cookie via php
+            // @see http://stackoverflow.com/a/686166/1114320
+            setcookie('rememberme', false, time() - (3600 * 3650), '/', COOKIE_DOMAIN);
 
-        // delete the session
-        Session::destroy();
+            // delete the session
+            Session::destroy();
+        } elseif($this->app->response_type == 'api') {
+            $token = $this->app->request()->headers('X-Session-Token');
+            $token = base64_decode($token . '=');
+            $token_arr = explode('::', $token, 3);
+
+            $sql = "UPDATE users SET session_token = :token
+                        WHERE user_name = :user_name AND session_token = :old_token";
+            $tkn = $this->db->prepare($sql);
+            $tkn->execute(array(':user_name' => $token_arr[0], ':old_token' => $token_arr[2], ':token' => '000'));
+            if($tkn->rowCount() > 0) {
+                return true;
+            }
+            return false;
+        }
     }
 
     /**

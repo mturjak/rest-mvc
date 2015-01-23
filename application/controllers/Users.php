@@ -23,9 +23,12 @@ class Users extends Controller
         if(!empty($username = $post->username) && !empty($password = $post->password)) {
             // call to model verify user & password
             // if user credentials ok
-            $x = false;
-            if($login_model->login()) {
-
+            $login = $login_model->login();
+            if($login !== false) {
+                if($login !== true) {
+                    $sess_token = $login;
+                    $sess_expires = 30;
+                }
             } else {
                 $message = 'Sorry! Wrong credentials.';
                 $code = 401;
@@ -44,7 +47,6 @@ class Users extends Controller
                 'message' => $message
             ), $code);
         } else {
-            $this->app->flash('success', $message);
             if($code == 200) {
                 if(REDIRECT_BACK) {
                     $redirect = Session::get('redirect');
@@ -74,7 +76,14 @@ class Users extends Controller
     public function logout()
     {
         $login_model = $this->loadModel('Login');
-        $login_model->logout();
-        $this->app->redirect(URL . LOGOUT_REDIRECT);
+        $logout = $login_model->logout();
+        if($this->app->response_type == 'html') {
+            $this->app->redirect(URL . LOGOUT_REDIRECT);
+        } elseif($this->app->response_type == 'api') {
+            $message = ($logout ? 'Logout successful!' : 'You were already logged out.');
+            $this->render('json',array(
+                'message' => $message
+            ));
+        }
     }
 }

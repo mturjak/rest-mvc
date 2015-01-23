@@ -148,7 +148,7 @@ $app->post('/login(/:name$|/index$|$)', function ($name = null) {
   $this->loadController('users', 'login', $name);
 });
 
-$app->get('/logout(/$|/index$|$)', function () {
+$app->get('/logout(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
   $this->loadController('users', 'logout');
 });
 

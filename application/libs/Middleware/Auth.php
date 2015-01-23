@@ -70,18 +70,19 @@ class Auth extends \Slim\Middleware
 
         if($app->response_type === 'api') {
             if(!empty($token = $req->headers('X-Session-Token'))) {
-                $token_arr = explode('::', $token, 2);
-                if($token_arr[1] < time()) { // if timestamp expired check against database
-                    $model = new \UserModel(\Database::getInstance());
-                    if($model->renew($token_arr[0])) {
-                        // call next
-                    } else {
-                        $resp->setStatus(401);
-                        $resp->setBody(json_encode(array(
-                            'error' => true,
-                            'message' => 'Your token has expired! Log in to get a new one.'
-                        )));
+                $model = new \UserModel(\Database::getInstance());
+                $checkToken = $model->checkToken($token);
+                if($checkToken !== false) {
+                    if($checkToken !== true) {
+                        $resp->headers('X-New-Session-Token', $checkToken);
                     }
+                    // call next
+                } else {
+                    $resp->setStatus(401);
+                    $resp->setBody(json_encode(array(
+                        'error' => true,
+                        'message' => 'Your token is invalid! Log in to get a new one.'
+                    )));
                 }
             } else {
                 $resp->setStatus(401);

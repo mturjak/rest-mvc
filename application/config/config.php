@@ -47,6 +47,13 @@ define('LOGOUT_REDIRECT', '');
 define('APP_NAME', 'My App');
 
 /**
+ *
+ */
+define('SESSION_TOKEN_KEY', 'BHKWdwd4zEplAVbWTX3x0RV9Y69IVC579NK6NOyLziTd4DIum827Y2iT6LSLTdD8LlpvlTuSHRFyPLyJVrrsQRjlZ9EBhhlsGDr4');
+define('SESSION_TOKEN_SALT', 'Wl7^eY0xam1-LCV6_hBp5uf=cwZSTl-1eRs-3^cliLfk68fnM~4^hx-0G__h');
+
+
+/**
  * Configuration for: Folders
  * Here you define where your folders are. Unless you have renamed them, there's no need to change this.
  */
