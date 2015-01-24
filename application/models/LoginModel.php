@@ -20,19 +20,6 @@ class LoginModel
         $this->post = (object)$this->app->request()->post();
     }
 
-    public function sessionToken($user, $token = null)
-    {
-        if(!empty($token)) {
-
-        } else {
-            $raw_token =  $user . '::' . time();
-            $token_hash = hash_hmac('SHA512', $raw_token . SESSION_TOKEN_SALT, SESSION_TOKEN_KEY);
-            echo substr(base64_encode($raw_token . "::" . $token_hash), 0, -1);
-            die();
-        }
-
-    }
-
     /**
      * Login process (for DEFAULT user accounts).
      * Users who login with Facebook etc. are handled with loginWithFacebook()

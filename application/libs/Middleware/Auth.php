@@ -74,7 +74,7 @@ class Auth extends \Slim\Middleware
                 $checkToken = $model->checkToken($token);
                 if($checkToken !== false) {
                     if($checkToken !== true) {
-                        $resp->headers('X-New-Session-Token', $checkToken);
+                        $resp->headers->set('X-New-Session-Token', $checkToken);
                     }
                     // call next
                 } else {
