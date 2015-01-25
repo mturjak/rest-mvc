@@ -110,7 +110,7 @@ $app->group('/users', function() use($app) {
   /**************  POST  ***************/
 
   /**
-   * Create user / Sign in
+   * Create user / Sign up
    */
   $app->post('(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
     $this->loadController('users', 'add');
@@ -119,7 +119,7 @@ $app->group('/users', function() use($app) {
   /**************  PUT  ***************/
 
   /**
-   * Update record
+   * Update user
    */
   $app->put('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
     if($id === 'index') {
@@ -131,7 +131,7 @@ $app->group('/users', function() use($app) {
   /**************  DELETE  ***************/
 
   /**
-   * Delete record
+   * Delete user
    */
   $app->delete('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
     if($id === 'index') {
@@ -144,22 +144,21 @@ $app->group('/users', function() use($app) {
 
 /**************** users related rules *********/
 
-$app->post('/login(/:name$|/index$|$)', function ($name = null) {
-  $this->loadController('users', 'login', $name);
+$app->post('/login(/:name$|/index$|$)', function () {
+  $this->loadController('users', 'login');
 });
 
 $app->get('/logout(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
   $this->loadController('users', 'logout');
 });
 
-$app->post('/requestPasswordReset(/$|/index$|$)', 'Middleware\Auth::authBase', function () {
+$app->post('/requestPasswordReset(/$|/index$|$)', function () {
   $this->loadController('users', 'requestPasswordReset');
 });
 
 $app->post('/verify(/$|/index$|$)', 'Middleware\Auth::verifyCode', function () {
   $this->loadController('users', 'verify');
 });
-
 
 /****************  errors  *****************/
 

@@ -6,7 +6,7 @@
     <div class="register-default-box">
         <h1>Register</h1>
         <!-- register form -->
-        <form method="post" action="<?php echo URL; ?>login/register_action" name="registerform">
+        <form method="post" action="<?php echo URL; ?>users" name="registerform">
             <!-- the user name input field uses a HTML5 pattern check -->
             <label for="login_input_username">
                 Username
@@ -37,10 +37,10 @@
             <input id="login_input_password_repeat" class="login_input" type="password" name="user_password_repeat" pattern=".{6,}" required autocomplete="off" />
             <!-- show the captcha by calling the login/showCaptcha-method in the src attribute of the img tag -->
             <!-- to avoid weird with-slash-without-slash issues: simply always use the URL constant here -->
-            <img id="captcha" src="<?php echo URL; ?>login/showCaptcha" />
+            <img id="captcha" src="<?php echo URL; ?>captcha" />
             <span style="display: block; font-size: 11px; color: #999; margin-bottom: 10px">
                 <!-- quick & dirty captcha reloader -->
-                <a href="#" onclick="document.getElementById('captcha').src = '<?php echo URL; ?>login/showCaptcha?' + Math.random(); return false">[ Reload Captcha ]</a>
+                <a href="#" onclick="document.getElementById('captcha').src = '<?php echo URL; ?>captcha?' + Math.random(); return false">[ Reload Captcha ]</a>
             </span>
             <label>
                 Please enter these characters

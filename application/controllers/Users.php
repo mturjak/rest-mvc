@@ -63,13 +63,19 @@ class Users extends Controller
         }
     }
 
-    /**************  Non-API speciffic methods *************/
+    /**************  html (Non-API) speciffic methods *************/
+
+    public function registerPage()
+    {
+        $this->render('user/registerpage', array(
+            'message' => "Test register response."
+        ));
+    }
 
     public function loginPage()
     {
-        $arg = (!isset($name) ? '' : " Action: {$name}");
         $this->render('user/loginpage', array(
-            'message' => "Test login response.{$arg}"
+            'message' => "Test login response."
         ));
     }
 
@@ -85,5 +91,19 @@ class Users extends Controller
                 'message' => $message
             ));
         }
+    }
+
+    /**
+     * Generate a captcha, write the characters into $_SESSION['captcha'] and returns a real image which will be used
+     * like this: <img src="......./login/showCaptcha" />
+     * IMPORTANT: As this action is called via <img ...> AFTER the real application has finished executing (!), the
+     * SESSION["captcha"] has no content when the application is loaded. The SESSION["captcha"] gets filled at the
+     * moment the end-user requests the <img .. >
+     * If you don't know what this means: Don't worry, simply leave everything like it is ;)
+     */
+    function showCaptcha()
+    {
+        $login_model = $this->loadModel('Login');
+        $login_model->generateCaptcha();
     }
 }
