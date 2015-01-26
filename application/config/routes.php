@@ -156,8 +156,8 @@ $app->post('/requestPasswordReset(/$|/index$|$)', function () {
   $this->loadController('users', 'requestPasswordReset');
 });
 
-$app->post('/verify(/$|/index$|$)', 'Middleware\Auth::verifyCode', function () {
-  $this->loadController('users', 'verify');
+$app->get('/verify/:name/:uid/:code(/$|/index$|$)', function ($name, $uid, $code) {
+  $this->loadController('users', 'verify_' . $name, $uid, $code);
 });
 
 /****************  errors  *****************/

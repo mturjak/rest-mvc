@@ -74,6 +74,17 @@ class Users extends Controller
         }
     }
 
+    public function verify_login($user_id, $user_activation_verification_code)
+    {
+        if (isset($user_id) && isset($user_activation_verification_code)) {
+            $login_model = $this->loadModel('Login');
+            $login_model->verifyNewUser($user_id, $user_activation_verification_code);
+            $this->render('user/verify');
+        } else {
+            $this->app->redirect(URL . 'login');
+        }
+    }
+
     /**************  html (Non-API) speciffic methods *************/
 
     public function registerPage()

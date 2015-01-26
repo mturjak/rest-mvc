@@ -218,13 +218,13 @@ define("EMAIL_SMTP_ENCRYPTION", 'ssl');
  * define("EMAIL_VERIFICATION_SUBJECT", "Account Activation for PROJECT XY");
  * define("EMAIL_VERIFICATION_CONTENT", "Please click on this link to activate your account:");
  */
-define("EMAIL_PASSWORD_RESET_URL", URL . "login/verifypasswordreset");
+define("EMAIL_PASSWORD_RESET_URL", URL . "verify/passwordreset");
 define("EMAIL_PASSWORD_RESET_FROM_EMAIL", "no-reply@example.com");
 define("EMAIL_PASSWORD_RESET_FROM_NAME", "My Project");
 define("EMAIL_PASSWORD_RESET_SUBJECT", "Password reset for PROJECT XY");
 define("EMAIL_PASSWORD_RESET_CONTENT", "Please click on this link to reset your password: ");
 
-define("EMAIL_VERIFICATION_URL", URL . "login/verify");
+define("EMAIL_VERIFICATION_URL", URL . "verify/login");
 define("EMAIL_VERIFICATION_FROM_EMAIL", "no-reply@example.com");
 define("EMAIL_VERIFICATION_FROM_NAME", "My Project");
 define("EMAIL_VERIFICATION_SUBJECT", "Account activation for PROJECT XY");
