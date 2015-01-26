@@ -72,10 +72,10 @@
             <!-- for not logged in users -->
             <?php if (Session::get('user_logged_in') == false):?>
                 <li <?php if ($this->isActiveControllerAndAction("users/loginpage")) { echo ' class="active" '; } ?> >
-                    <a href="<?php echo URL; ?>login/index">Login</a>
+                    <a href="<?php echo URL; ?>login">Login</a>
                 </li>
                 <li <?php if ($this->isActiveControllerAndAction("login/register")) { echo ' class="active" '; } ?> >
-                    <a href="<?php echo URL; ?>login/register">Register</a>
+                    <a href="<?php echo URL; ?>register">Register</a>
                 </li>
             <?php endif; ?>
         </ul>
