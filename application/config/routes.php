@@ -112,8 +112,8 @@ $app->group('/users', function() use($app) {
   /**
    * Create user / Sign up
    */
-  $app->post('(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
-    $this->loadController('users', 'add');
+  $app->post('(/$|/index$|$)', function () {
+    $this->loadController('users', 'addUser');
   });
 
   /**************  PUT  ***************/

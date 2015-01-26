@@ -63,6 +63,17 @@ class Users extends Controller
         }
     }
 
+    public function addUser() {
+        $login_model = $this->loadModel('Login');
+        $registration_successful = $login_model->registerNewUser();
+
+        if ($registration_successful == true) {
+            $this->app->redirect(URL . 'login');
+        } else {
+            $this->app->redirect(URL . 'register');
+        }
+    }
+
     /**************  html (Non-API) speciffic methods *************/
 
     public function registerPage()
